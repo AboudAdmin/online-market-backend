@@ -11,6 +11,38 @@ const order = sequelize.define("order", {
   userID: {
     type: DataTypes.INTEGER,
   },
+  fullName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isEmail: true,
+      notEmpty: true,
+      len: [5, 100],
+      
+
+    },
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  
+  city: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  postalCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   date: {
     type: DataTypes.DATE,
     allowNull: false,

@@ -1,25 +1,64 @@
 const order = require('../models/order');
+const OrderItems = require('../models/orderitems');
+
 exports.createOrder = async (req, res) => {
     try {
-        const { date,total,status } = req.body;
-        const nouvelleOrder = await order.create({ date,total,status });
-        res.status(201).json(nouvelleOrder);
+        const {
+            fullName,
+            email,
+            phone,
+            country,
+            city,
+            address,
+            postalCode,
+            
+            total,
+            status,
+            items
+        } = req.body;
+        console.log(req.body);
+
+        const nouvelleOrder = await order.create({
+            fullName,
+            email,
+            phone,
+            country,
+            city,
+            address,
+            postalCode,
+            date,
+            total,
+            status
+        });
+        // const orderItems = await Promise.all(
+        //     items.map(item => 
+        //       OrderItems.create({
+        //         OrderId: nouvelleOrder.id,
+        //         ProductId: item.id,
+        //         quantity: item.quantity,
+        //         subTotal: item.price * item.quantity
+        //       })
+        //     )
+        //   );
+
+         res.status(201).json(nouvelleOrder);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
 exports.getAllOrder = async (req, res) => {
     try {
-        const Order = await Order.findAll();
-
-        res.json(order);
+        const orders = await order.findAll();
+        res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 exports.getOrderById = async (req, res) => {
     try {
-        const Order = await Order.findByPk(req.params.id);
+        const Order = await order.findByPk(req.params.id);
         if (!Order) {
             res.status(404).json({ message: "الطلب غير موجود" });
         } else {
@@ -32,21 +71,45 @@ exports.getOrderById = async (req, res) => {
 
 exports.updateOrder = async (req, res) => {
     try {
-        const { Date, status, total } = req.body;
-        const Order = await Order.findByPk(req.params.id);
+        const {
+            fullName,
+            email,
+            phone,
+            country,
+            city,
+            address,
+            postalCode,
+            date,
+            total,
+            status
+        } = req.body;
+
+        const Order = await order.findByPk(req.params.id);
         if (!Order) {
             res.status(404).json({ message: "الطلب غير موجود" });
         } else {
-            await Order.update({ Date, status, total });
+            await Order.update({
+                fullName,
+                email,
+                phone,
+                country,
+                city,
+                address,
+                postalCode,
+                date,
+                total,
+                status
+            });
             res.json(Order);
         }
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
 exports.deleteOrder = async (req, res) => {
     try {
-        const Order = await Order.findByPk(req.params.id);
+        const Order = await order.findByPk(req.params.id);
         if (!Order) {
             res.status(404).json({ message: "الطلب غير موجود" });
         } else {

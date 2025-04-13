@@ -1,15 +1,13 @@
 const config = require("../config/config");
-const mysql = require("mysql2");
-const Sequelize = require("sequelize");
-
+const { Sequelize } = require("sequelize");
 
 module.exports = db = {};
 
 const { host, port, user, password, database } = config.database;
-const pool = mysql.createPool({ host, port, user, password });
-pool.query(`CREATE DATABASE IF NOT EXIST ${database}`);
 
 const sequelize = new Sequelize(database, user, password, {
+  host,
+  port,
   dialect: "mysql",
   pool: {
     max: config.pool.max,
@@ -28,7 +26,7 @@ const Photo = require("./photos.js");
 const Contact = require("./contact.js");
 const Reviews = require("./reviews.js");
 const OrderItems = require("./orderitems.js");
-const order = require("./order.js");
+const Order = require("./order.js");
 const Comment = require("./comment.js");
 
 Category.hasMany(Product);
@@ -37,8 +35,8 @@ Product.belongsTo(Category);
 Product.hasMany(Photo);
 Photo.belongsTo(Product);
 
-Contact.belongsTo(User, { as: 'Sender', foreignKey: 'senderId' });
-Contact.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });;
+User.hasMany(Contact);
+Contact.belongsTo(User);
 
 User.hasMany(Reviews);
 Reviews.belongsTo(User);
@@ -46,14 +44,19 @@ Reviews.belongsTo(User);
 Product.hasMany(Reviews);
 Reviews.belongsTo(Product);
 
-/*OrderItems.hasMany(product, order);
-(product, order).belongsTo(OrderItems);*/
-User.hasMany(Comment, { foreignKey: 'userId' });
-Comment.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Comment, { foreignKey: "userId" });
+Comment.belongsTo(User, { foreignKey: "userId" });
 
-Product.hasMany(Comment, { foreignKey: 'productId' });
-Comment.belongsTo(Product, { foreignKey: 'productId' });
+Product.hasMany(Comment, { foreignKey: "productId" });
+Comment.belongsTo(Product, { foreignKey: "productId" });
 
+Order.hasMany(OrderItems, { foreignKey: "orderId" });
+OrderItems.belongsTo(Order, { foreignKey: "orderId" });
 
-sequelize.sync({ force: false});
+Product.hasMany(OrderItems, { foreignKey: "productId" });
+OrderItems.belongsTo(Product, { foreignKey: "productId" });
 
+sequelize
+  .sync({ force: false }) 
+  .then(() => console.log("Database & tables synced"))
+  .catch((err) => console.error("Error syncing database:", err));

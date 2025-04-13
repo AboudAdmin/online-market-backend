@@ -1,42 +1,58 @@
 const { Sequelize, DataTypes } = require("sequelize");
-
 const db = require('./index.js');
 const sequelize = db.sequelize;
 
-const User = sequelize.define('user',{
+const User = sequelize.define('user', {
     id: {
         type: DataTypes.INTEGER,
-        primaryKey : true,
+        primaryKey: true,
         autoIncrement: true,
     },
-    name : {
+    name: {
         type: DataTypes.STRING,
-        allowNull :false,
+        allowNull: false,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate:{
+        validate: {
             isEmail: true,
-        }
+        },
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     adresse: {
         type: DataTypes.STRING,
-        allowNull:true,
+        allowNull: true,
     },
     phone: {
-        type: DataTypes.INTEGER, // or INTEGER
-        allowNull:false,
+        type: DataTypes.STRING, // Changed from INTEGER to STRING for compatibility
+        allowNull: false,
     },
     role: {
-        type: DataTypes.ENUM(["admin","client","mederator"]),
+        type: DataTypes.ENUM("admin", "client", "moderator"), // Fixed typo in "moderator"
         allowNull: false,
-    }
- 
+    },
+    isBanned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false, // Changed to false to ensure consistency
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        allowNull: false,
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        allowNull: false,
+    },
+}, {
+    timestamps: true, // Enable automatic timestamps
 });
+
 module.exports = User;

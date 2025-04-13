@@ -3,6 +3,7 @@ const db = require('./src/models/index');
 
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 
 const sequelize = db.sequelize;
 
@@ -11,6 +12,7 @@ const app = express();
 const PORT = 5000;
 app.use(bodyParser.json());
 app.use(cors());
+app.use('/upload', express.static(path.join(__dirname, 'upload')));
 
 
 

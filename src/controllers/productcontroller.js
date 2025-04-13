@@ -1,13 +1,58 @@
-const Product = require('../models/product');
+const product = require('../models/product');
+const category = require('../models/category');
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'upload/'); // Directory to save uploaded files
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+ exports.upload = multer({ storage });
+
 exports.createproduct = async (req, res) => {
   try {
-    const { id , name , price , description , quantity , marque , statut , categoryId} = req.body;
-    const product = await Product.create({ id , name , price , description , quantity , marque , statut , categoryId});
-    res.status(201).json(product);
+    // Parse the form data
+    const { name, price, description, quantity, marque, statut, categoryId } = req.body;
+
+    // Handle the uploaded image
+    const img = req.file ? req.file.filename : null;
+
+    // Log the received data for debugging
+    console.log('Received Data:', {
+      name,
+      price,
+      description,
+      quantity,
+      marque,
+      statut,
+      categoryId,
+      img,
+    });
+
+    // Save the product to the database
+    const produit = await product.create({
+      name,
+      price,
+      description,
+      quantity,
+      marque,
+      statut,
+      categoryId, 
+      image:img,
+    });
+
+    res.status(201).json(produit);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 exports.getallproduct = async (req, res) => {
   try {
       const { priceMin, priceMax, marque, statut, search } = req.query;
@@ -21,27 +66,40 @@ exports.getallproduct = async (req, res) => {
       }
       
       if (marque) where.marque = { [Op.like]: `%${marque}%` }; 
+      
+
       if (statut) where.statut = statut;
       if (search) {
           where[Op.or] = [
               { description: { [Op.like]: `%${search}%` } },
               { marque: { [Op.like]: `%${search}%` } }, 
+              { name: { [Op.like]: `%${search}%` } }, 
           ];
       }
 
-      const Products = await Product.findAll({ where });
-      res.status(200).json(Products);
+      // const products = await product.findAll({ where });
+      const products = await product.findAll({
+        where,
+        include: [
+          {
+            model: category,
+            as: 'category', // Ensure this matches the association alias
+            attributes: ['name'], // Only include the category name
+          },
+        ],
+      });
+      res.status(200).json(products);
   }catch (error) {
       res.status(400).json({ error: error.message });
   }
 };
 exports.getproductById = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
-    if (!product) {
-      res.status(404).json({ message: "Product Not Found" });
+    const produit = await product.findByPk(req.params.id);
+    if (!produit) {
+      res.status(404).json({ message: "product Not Found" });
     } else {
-      res.json(product);
+      res.json(produit);
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -50,12 +108,12 @@ exports.getproductById = async (req, res) => {
 exports.updateproduct = async (req, res) => {
   try {
     const { id , name , price , description , quantity , marque} = req.body;
-    const product = await Product.findByPk(req.params.id);
-    if (!product) {
-      res.status(404).json({ message: "Product Not Found" });
+    const produit = await product.findByPk(req.params.id);
+    if (!produit) {
+      res.status(404).json({ message: "product Not Found" });
     } else {
-      await product.update({ id , name , price , description , quantity , marque});
-      res.json(product);
+      await produit.update({ id , name , price , description , quantity , marque});
+      res.json(produit);
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -63,14 +121,32 @@ exports.updateproduct = async (req, res) => {
 };
 exports.deleteproduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
-    if (!product) {
-      res.status(404).json({ message: "Product Not Found" });
+    const produit = await product.findByPk(req.params.id);
+    if (!produit) {
+      res.status(404).json({ message: "product Not Found" });
     } else {
-      await product.destroy();
-      res.json({ message: "Product remove" });
+      await produit.destroy();
+      res.json({ message: "product remove" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+exports.getproductsByCategoryId = async (req, res) => {
+  try {
+    const categoryId = req.params.categoryid;
+    const products = await product.findAll({
+      where: { categoryId },
+      include: [
+        {
+          model: category,
+          as: 'category',
+          attributes: ['name'],
+        },
+      ],
+    });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
