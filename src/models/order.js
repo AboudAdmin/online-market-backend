@@ -23,6 +23,7 @@ const order = sequelize.define("order", {
   status: {
     type: DataTypes.ENUM(["en attente", "payé", "envoyé", "reçu"]),
     allowNull: false,
+    defaultValue: 'en attente'
   },
 });
 

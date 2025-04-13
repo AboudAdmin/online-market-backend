@@ -2,6 +2,7 @@ const config = require("../config/config");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
 
+
 module.exports = db = {};
 
 const { host, port, user, password, database } = config.database;
@@ -36,8 +37,8 @@ Product.belongsTo(Category);
 Product.hasMany(Photo);
 Photo.belongsTo(Product);
 
-Contact.hasMany(User);
-User.hasMany(Contact);
+Contact.belongsTo(User, { as: 'Sender', foreignKey: 'senderId' });
+Contact.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });;
 
 User.hasMany(Reviews);
 Reviews.belongsTo(User);
@@ -53,4 +54,6 @@ Comment.belongsTo(User, { foreignKey: 'userId' });
 Product.hasMany(Comment, { foreignKey: 'productId' });
 Comment.belongsTo(Product, { foreignKey: 'productId' });
 
-sequelize.sync({ force: false });
+
+sequelize.sync({ force: false});
+

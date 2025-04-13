@@ -30,6 +30,7 @@ const createUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 const updateUser = async (req, res) => {
     const userId = req.params.userId;
     const {    name, email , password , role  } = req.body; 

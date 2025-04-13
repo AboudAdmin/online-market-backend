@@ -1,9 +1,9 @@
-const product = require('../models/product');
+const Product = require('../models/product');
 exports.createproduct = async (req, res) => {
   try {
-    const { id , name , price , description , quantity , marque} = req.body;
-    const produit = await product.create({ id , name , price , description , quantity , marque});
-    res.status(201).json(produit);
+    const { id , name , price , description , quantity , marque , statut , categoryId} = req.body;
+    const product = await Product.create({ id , name , price , description , quantity , marque , statut , categoryId});
+    res.status(201).json(product);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -29,19 +29,19 @@ exports.getallproduct = async (req, res) => {
           ];
       }
 
-      const products = await Product.findAll({ where });
-      res.status(200).json(products);
+      const Products = await Product.findAll({ where });
+      res.status(200).json(Products);
   }catch (error) {
       res.status(400).json({ error: error.message });
   }
 };
 exports.getproductById = async (req, res) => {
   try {
-    const produit = await product.findByPk(req.params.id);
-    if (!produit) {
-      res.status(404).json({ message: "product Not Found" });
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      res.status(404).json({ message: "Product Not Found" });
     } else {
-      res.json(produit);
+      res.json(product);
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -50,12 +50,12 @@ exports.getproductById = async (req, res) => {
 exports.updateproduct = async (req, res) => {
   try {
     const { id , name , price , description , quantity , marque} = req.body;
-    const produit = await product.findByPk(req.params.id);
-    if (!produit) {
-      res.status(404).json({ message: "product Not Found" });
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      res.status(404).json({ message: "Product Not Found" });
     } else {
-      await produit.update({ id , name , price , description , quantity , marque});
-      res.json(produit);
+      await product.update({ id , name , price , description , quantity , marque});
+      res.json(product);
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -63,12 +63,12 @@ exports.updateproduct = async (req, res) => {
 };
 exports.deleteproduct = async (req, res) => {
   try {
-    const produit = await product.findByPk(req.params.id);
-    if (!produit) {
-      res.status(404).json({ message: "product Not Found" });
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      res.status(404).json({ message: "Product Not Found" });
     } else {
-      await produit.destroy();
-      res.json({ message: "product remove" });
+      await product.destroy();
+      res.json({ message: "Product remove" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

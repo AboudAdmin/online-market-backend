@@ -27,7 +27,7 @@ const product = sequelize.define('product',{
         type: DataTypes.STRING,
     },
     statut: {
-        type: DataTypes.ENUM(["publie","prive"]),
+        type: DataTypes.ENUM(["public","prive"]),
         allowNull: false,
     }
 });
